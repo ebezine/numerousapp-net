@@ -52,6 +52,7 @@
     <Compile Include="Event.cs" />
     <Compile Include="EventAction.cs" />
     <Compile Include="EventResultPage.cs" />
+    <Compile Include="Helpers\NumerousContext.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="Helpers\JSonSettings.cs" />
     <Compile Include="Helpers\LowerCaseStringEnumConverter.cs" />
@@ -62,8 +63,10 @@
     <Compile Include="MetricResultPage.cs" />
     <Compile Include="NumerousClient.cs" />
     <Compile Include="Helpers\HttpClientExtensionMethods.cs" />
+    <Compile Include="NumerousSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResultPage.cs" />
+    <Compile Include="Retry.cs" />
     <Compile Include="Subscription.cs" />
     <Compile Include="SubscriptionResultPage.cs" />
     <Compile Include="Sync\SyncExtensionMethods.cs" />

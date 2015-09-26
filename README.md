@@ -25,6 +25,7 @@ using (var client = new NumerousClient(apiKey))
 }
 
 ```
+`NumerousClient` initializer also have an override taking a `NumerousSettings` value providing more flexible use of API (see below).
 
 Numerous.NET is designed to work in asynchronous mode : methods that use the `NumerousClient` object must be marked with the `async` modifier. In order to use it in a synchronous fashion, use the `AsSync` extensions methods, as follow:
 
@@ -57,9 +58,9 @@ Numerous API calls are limited to a quota of 300 calls/minute.
 
 When quota is exceeded, Numerous.NET waits for the required amount of time before further attempt.
 
-Quota handling is transparent for the `NumerousClient` caller.
+Quota handling is transparent for the `NumerousClient` caller. Attempts count may be configured using the `NumerousSettings.QuotaExceededRetry` property (default is `Retry.Infinite`).
 
-### Error Handling
+### API Error Handling
 Under certain conditions, `NumerousClient` transparently make further attempts to the Numerous API.
 
 This occur when HTTP status code returned by API is one of the following:
@@ -69,7 +70,7 @@ This occur when HTTP status code returned by API is one of the following:
  - **503** : Service Unavailable
  - **504** : Gateway Timeout
 
-Interval between successive attempts is of 30 seconds.
+API Error handling is transparent for the `NumerousClient` caller. Attempt count may be configured using the `NumerousSettings.ErrorRetry` property (default is 1), interval between successive attempts may be configured using the `NumerousSettings.ErrorRetryDelay` property (default is 30 seconds).
 
 **There is currently no limit in the number of successive attempts.**
 

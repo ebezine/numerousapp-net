@@ -19,23 +19,31 @@ namespace Numerous.Api
         #region Fields
 
         private static readonly Uri baseUrl = new Uri("https://api.numerousapp.com/v2/");
-        private readonly HttpClient client;
+
+        private readonly NumerousContext context;
 
         #endregion
 
         #region Instance Management
 
-        public NumerousClient(string apiKey)
-        {
-            var credentials = new NetworkCredential(apiKey, string.Empty);
-            var handler = new HttpClientHandler {Credentials = credentials};
+        public NumerousClient(string apiKey) : this(new NumerousSettings{ApiKey = apiKey}) {}
 
-            client = new HttpClient(handler) {BaseAddress = baseUrl};
+        public NumerousClient(NumerousSettings settings)
+        {
+            var credentials = new NetworkCredential(settings.ApiKey, string.Empty);
+            var handler = new HttpClientHandler { Credentials = credentials };
+
+            var client = new HttpClient(handler) { BaseAddress = baseUrl };
+            context = new NumerousContext
+            {
+                Client = client,
+                Settings = settings
+            };
         }
 
         void IDisposable.Dispose()
         {
-            client.Dispose();
+            context.Client.Dispose();
         }
 
         #endregion
@@ -52,7 +60,7 @@ namespace Numerous.Api
         public async Task<Metric> GetMetric(long metricId)
         {
             var metricsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}", metricId);
-            var response = await client.GetAsyncWithQuota(metricsUrl);
+            var response = await context.GetWithRetry(metricsUrl);
             return await response.Content.ReadAsAsync<Metric>(JSonSettings.Formatter);
         }
         
@@ -65,7 +73,7 @@ namespace Numerous.Api
         public async Task<ResultPage<Metric>> GetPopularMetrics(int count = 10)
         {
             var metricsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/popular?count={0}", count);
-            var response = await client.GetAsyncWithQuota(metricsUrl);
+            var response = await context.GetWithRetry(metricsUrl);
             
             var results = await response.Content.ReadAsAsync<IEnumerable<Metric>>(JSonSettings.Formatter);
 
@@ -75,7 +83,7 @@ namespace Numerous.Api
         public async Task<Image> GetMetricImage(long metricId)
         {
             var photoUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/photo", metricId);
-            var response = await client.GetAsyncWithQuota(photoUrl);
+            var response = await context.GetWithRetry(photoUrl);
             
             var data = await response.Content.ReadAsByteArrayAsync();
 
@@ -90,7 +98,7 @@ namespace Numerous.Api
         {
             var jsonMetric = JsonConvert.SerializeObject(metric, JSonSettings.SerializerSettings);
 
-            var response = await client.PostAsyncWithQuota("metrics", jsonMetric);
+            var response = await context.PostWithRetry("metrics", jsonMetric);
             return await response.Content.ReadAsAsync<Metric>(JSonSettings.Formatter);
         }
 
@@ -103,27 +111,27 @@ namespace Numerous.Api
             var jsonMetric = JsonConvert.SerializeObject(actualMetricUpdate, JSonSettings.SerializerSettings);
 
             var metricsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}", metricId);
-            var response = await client.PutAsyncWithQuota(metricsUrl, jsonMetric);
+            var response = await context.PutWithRetry(metricsUrl, jsonMetric);
             return await response.Content.ReadAsAsync<Metric>(JSonSettings.Formatter);
         }
 
         public async Task<Metric> UpdateMetricImage(long metricId, Image.Edit image)
         {
             var photoUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/photo", metricId);
-            var response = await client.PostAsyncWithQuota(photoUrl, image);
+            var response = await context.PostWithRetry(photoUrl, image);
             return await response.Content.ReadAsAsync<Metric>(JSonSettings.Formatter);
         }
         
         public async Task DeleteMetric(long metricId)
         {
             var metricUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}", metricId);
-            await client.DeleteAsyncWithQuota(metricUrl);
+            await context.DeleteWithRetry(metricUrl);
         }
         
         public async Task DeleteMetricImage(long metricId)
         {
             var metricUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/photo", metricId);
-            await client.DeleteAsyncWithQuota(metricUrl);
+            await context.DeleteWithRetry(metricUrl);
         }
 
         #endregion
@@ -134,7 +142,7 @@ namespace Numerous.Api
         {
             var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events/{1}", metricId, eventId);
 
-            var response = await client.GetAsyncWithQuota(eventsUrl);
+            var response = await context.GetWithRetry(eventsUrl);
             return await response.Content.ReadAsAsync<Event>(JSonSettings.Formatter);
         }
 
@@ -148,7 +156,7 @@ namespace Numerous.Api
         {
             var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events?t={1}", metricId, date.ToString(JSonSettings.SerializerSettings.DateFormatString, CultureInfo.InvariantCulture));
 
-            var response = await client.GetAsyncWithQuota(eventsUrl);
+            var response = await context.GetWithRetry(eventsUrl);
             return await response.Content.ReadAsAsync<Event>(JSonSettings.Formatter);
         }
 
@@ -157,14 +165,14 @@ namespace Numerous.Api
             var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events", metricId);
 
             var jsonEvent = JsonConvert.SerializeObject(evnt, JSonSettings.SerializerSettings);
-            var response = await client.PostAsyncWithQuota(eventsUrl, jsonEvent);
+            var response = await context.PostWithRetry(eventsUrl, jsonEvent);
             return await response.Content.ReadAsAsync<Event>(JSonSettings.Formatter);
         }
 
         public async Task DeleteEvent(long metricId, long eventId)
         {
             var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events/{1}", metricId, eventId);
-            await client.DeleteAsyncWithQuota(eventsUrl);
+            await context.DeleteWithRetry(eventsUrl);
         }
         
         #endregion
@@ -174,7 +182,7 @@ namespace Numerous.Api
         public async Task<Subscription> GetSubscription(long metricId, long userId = 0)
         {
             var subscriptionsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/subscriptions/{1}", metricId, GetUserIdParameter(userId));
-            var response = await client.GetAsyncWithQuota(subscriptionsUrl);
+            var response = await context.GetWithRetry(subscriptionsUrl);
             return await response.Content.ReadAsAsync<Subscription>(JSonSettings.Formatter);
         }
 
@@ -195,14 +203,14 @@ namespace Numerous.Api
             var subscriptionUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/subscriptions/{1}", metricId, GetUserIdParameter(userId));
 
             var jsonSubscription = JsonConvert.SerializeObject(subscription, JSonSettings.SerializerSettings);
-            var response = await client.PutAsyncWithQuota(subscriptionUrl, jsonSubscription);
+            var response = await context.PutWithRetry(subscriptionUrl, jsonSubscription);
             return await response.Content.ReadAsAsync<Subscription>(JSonSettings.Formatter);
         }
 
         public async Task DeleteSubscription(long metricId, long userId = 0)
         {
             var subscriptionUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/subscriptions/{1}", metricId, GetUserIdParameter(userId));
-            await client.DeleteAsyncWithQuota(subscriptionUrl);
+            await context.DeleteWithRetry(subscriptionUrl);
         }
 
         #endregion
@@ -213,14 +221,14 @@ namespace Numerous.Api
         {
             var eventsUrl = string.Format(CultureInfo.InvariantCulture, "users/{0}", GetUserIdParameter(userId));
 
-            var response = await client.GetAsyncWithQuota(eventsUrl);
+            var response = await context.GetWithRetry(eventsUrl);
             return await response.Content.ReadAsAsync<User>(JSonSettings.Formatter);
         }
 
         public async Task<Image> GetUserImage(long userId = 0)
         {
             var photoUrl = string.Format(CultureInfo.InvariantCulture, "users/{0}/photo", GetUserIdParameter(userId));
-            var response = await client.GetAsyncWithQuota(photoUrl);
+            var response = await context.GetWithRetry(photoUrl);
 
             var data = await response.Content.ReadAsByteArrayAsync();
 
@@ -244,7 +252,7 @@ namespace Numerous.Api
             var jsonMetric = JsonConvert.SerializeObject(actualUserUpdate, JSonSettings.SerializerSettings);
 
             var usersUrl = string.Format(CultureInfo.InvariantCulture, "users/{0}", GetUserIdParameter(userId));
-            var response = await client.PutAsyncWithQuota(usersUrl, jsonMetric);
+            var response = await context.PutWithRetry(usersUrl, jsonMetric);
             return await response.Content.ReadAsAsync<User>(JSonSettings.Formatter);
         }
 
@@ -256,14 +264,14 @@ namespace Numerous.Api
         public async Task<User> UpdateUserImage(long userId, Image.Edit image)
         {
             var photoUrl = string.Format(CultureInfo.InvariantCulture, "users/{0}/photo", GetUserIdParameter(userId));
-            var response = await client.PostAsyncWithQuota(photoUrl, image);
+            var response = await context.PostWithRetry(photoUrl, image);
             return await response.Content.ReadAsAsync<User>(JSonSettings.Formatter);
         }
 
         public async Task DeleteUserImage(long userId = 0)
         {
             var photoUrl = string.Format(CultureInfo.InvariantCulture, "users/{0}/photo", GetUserIdParameter(userId));
-            await client.DeleteAsyncWithQuota(photoUrl);
+            await context.DeleteWithRetry(photoUrl);
         }
 
         #endregion
@@ -282,7 +290,7 @@ namespace Numerous.Api
             if (string.IsNullOrEmpty(url))
                 return ResultPage<TResult>.Empty;
 
-            var response = await client.GetAsyncWithQuota(url);
+            var response = await context.GetWithRetry(url);
             var result = await response.Content.ReadAsAsync<TPage>(JSonSettings.Formatter);
 
             return new ResultPage<TResult>
