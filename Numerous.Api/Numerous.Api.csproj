@@ -62,10 +62,11 @@
     <Compile Include="MetricLinks.cs" />
     <Compile Include="MetricResultPage.cs" />
     <Compile Include="NumerousClient.cs" />
-    <Compile Include="Helpers\HttpClientExtensionMethods.cs" />
+    <Compile Include="Helpers\NumerousContextExtensionMethods.cs" />
     <Compile Include="NumerousSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResultPage.cs" />
+    <Compile Include="ResultPageExtensionMethods.cs" />
     <Compile Include="Retry.cs" />
     <Compile Include="Subscription.cs" />
     <Compile Include="SubscriptionResultPage.cs" />
