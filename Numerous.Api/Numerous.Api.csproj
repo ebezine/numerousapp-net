@@ -55,6 +55,7 @@
     <Compile Include="Image.cs" />
     <Compile Include="Helpers\JSonSettings.cs" />
     <Compile Include="Helpers\LowerCaseStringEnumConverter.cs" />
+    <Compile Include="IResultPage.cs" />
     <Compile Include="Metric.cs" />
     <Compile Include="MetricKind.cs" />
     <Compile Include="MetricLinks.cs" />
@@ -62,9 +63,10 @@
     <Compile Include="NumerousClient.cs" />
     <Compile Include="Helpers\HttpClientExtensionMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResultPage.cs" />
     <Compile Include="Subscription.cs" />
     <Compile Include="SubscriptionResultPage.cs" />
-    <Compile Include="Helpers\AsyncExtensionMethods.cs" />
+    <Compile Include="Sync\SyncExtensionMethods.cs" />
     <Compile Include="User.cs" />
     <Compile Include="Visibility.cs" />
   </ItemGroup>

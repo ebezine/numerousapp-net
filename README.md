@@ -40,47 +40,17 @@ var currentUser = client.GetUser().AsSync();
 ```
 
 ## Features
-`NumerousClient` supports the following operations :
 
-### Users
-`userId` parameter is always optional on methods involving users : if omitted (or set to `0`, operation apply to the current user).
+### User Handling
 
- - **GetUser** : Retrieve information about a user
- - **UpdateUser** : Update profile of a user
- - **GetUserImage** : Retrieve the photo of a user
- - **UpdateUserImage** : Update profile photo of a user
- - **DeleteUserImage** : Clear profile photo of a user
-
-### Metrics
- - **GetMetric** : Retrieve information about a metric
- - **GetUserMetrics **: Retrieve information about metrics owned by a user
- - **GetPopularMetrics** : Retrieve information about popular public metrics
- - **AddMetric** : Create a new metric
- - **UpdateMetric** : Update a metric configuration
- - **DeleteMetric** : Delete a metric
- - **GetMetricImage** : Retrieve the image of a metric
- - **UpdateMetricImage** : Update metric image
- - **DeleteMetricImage** : Clear metric image
-
-### Subscriptions
- - **GetSubscription** : Retrieve information about a subscription
- - **GetUserSubscriptions** : Retrieve subscriptions made by a user
- - **GetMetricSubscriptions** : Retrieve subscriptions made to a metric
- - **AddSubscription** : Add a subscription for a user to a metric
- - **UpdateSubscription** : Update the subscription made by a user to a metric
- - **DeleteSubscription** : Remove the subscription made by a user to a metric
-
-### Events
- - **GetMetricEvent** : Get event details 
- - **GetMetricEvents** : Retrieve events for a metric
- - **GetMetricEventAt** : Retrieve the nearest event to a date
- - **AddMetricEvent** : Add new event
- - **DeleteMetricEvent** : Delete an event
-
-## Implementation Notes
+`userId` parameter is always optional on methods involving users : if omitted (or set to `0`), operation apply to the current user.
 
 ### Paging
-**Paging is currently not supported by Numerous.NET. Only the first page of results is returned by `NumerousClient`.**
+
+Methods that support paging returns a `ResultPage<T>` object having the following behavior :
+  - Results of the current view may be accessed using `Values` property
+  - If more results are available, `HasMoreResults` property is `true`
+  - Next page of results may be obtained by invoking `Next()` method
 
 ### Quota Handling
 Numerous API calls are limited to a quota of 300 calls/minute. 
@@ -102,3 +72,47 @@ This occur when HTTP status code returned by API is one of the following:
 Interval between successive attempts is of 30 seconds.
 
 **There is currently no limit in the number of successive attempts.**
+
+
+## Supported API
+
+`NumerousClient` supports the following operations :
+
+### Users
+
+ - **GetUser** : Retrieve information about a user
+ - **UpdateUser** : Update profile of a user
+
+#### Profile Photos
+ - **GetUserImage** : Retrieve the photo of a user
+ - **UpdateUserImage** : Update profile photo of a user
+ - **DeleteUserImage** : Clear profile photo of a user
+
+### Metrics
+ - **GetMetric** : Retrieve information about a metric
+ - **GetUserMetrics **: Retrieve information about metrics owned by a user
+ - **GetPopularMetrics** : Retrieve information about popular public metrics
+ - **AddMetric** : Create a new metric
+ - **UpdateMetric** : Update a metric configuration
+ - **DeleteMetric** : Delete a metric
+
+#### Metric Images
+ - **GetMetricImage** : Retrieve the image of a metric
+ - **UpdateMetricImage** : Update metric image
+ - **DeleteMetricImage** : Clear metric image
+
+### Subscriptions
+ - **GetSubscription** : Retrieve information about a subscription
+ - **GetUserSubscriptions** : Retrieve subscriptions made by a user
+ - **GetMetricSubscriptions** : Retrieve subscriptions made to a metric
+ - **AddSubscription** : Add a subscription for a user to a metric
+ - **UpdateSubscription** : Update the subscription made by a user to a metric
+ - **DeleteSubscription** : Remove the subscription made by a user to a metric
+
+### Events
+ - **GetEvent** : Get event details 
+ - **GetEvents** : Retrieve events for a metric
+ - **GetNearestEvent** : Retrieve the nearest event to a date
+ - **AddEvent** : Add a new event
+ - **DeleteEvent** : Delete an event
+

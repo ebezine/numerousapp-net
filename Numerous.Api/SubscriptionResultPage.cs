@@ -3,10 +3,10 @@ using Newtonsoft.Json;
 
 namespace Numerous.Api
 {
-    internal class SubscriptionResultPage
+    internal class SubscriptionResultPage : IResultPage<Subscription>
     {
         [JsonProperty("subscriptions")]
-        public List<Subscription> All { get; set; }
+        public IEnumerable<Subscription> Values { get; set; }
 
         [JsonProperty("nextURL")]
         public string NextUrl { get; set; }

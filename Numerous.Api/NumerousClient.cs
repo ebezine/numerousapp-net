@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -49,7 +48,44 @@ namespace Numerous.Api
         }
 
         #region Metrics
+
+        public async Task<Metric> GetMetric(long metricId)
+        {
+            var metricsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}", metricId);
+            var response = await client.GetAsyncWithQuota(metricsUrl);
+            return await response.Content.ReadAsAsync<Metric>(JSonSettings.Formatter);
+        }
         
+        public async Task<ResultPage<Metric>> GetUserMetrics(long userId = 0)
+        {
+            var metricsUrl = string.Format(CultureInfo.InvariantCulture, "users/{0}/metrics", GetUserIdParameter(userId));
+            return await GetResultView<MetricResultPage, Metric>(metricsUrl);
+        }
+
+        public async Task<ResultPage<Metric>> GetPopularMetrics(int count = 10)
+        {
+            var metricsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/popular?count={0}", count);
+            var response = await client.GetAsyncWithQuota(metricsUrl);
+            
+            var results = await response.Content.ReadAsAsync<IEnumerable<Metric>>(JSonSettings.Formatter);
+
+            return ResultPage<Metric>.SinglePage(results);
+        }
+
+        public async Task<Image> GetMetricImage(long metricId)
+        {
+            var photoUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/photo", metricId);
+            var response = await client.GetAsyncWithQuota(photoUrl);
+            
+            var data = await response.Content.ReadAsByteArrayAsync();
+
+            return new Image
+            {
+                MediaType = response.Content.Headers.ContentType.MediaType,
+                Data = data
+            };
+        }
+                
         public async Task<Metric> AddMetric(Metric.Edit metric)
         {
             var jsonMetric = JsonConvert.SerializeObject(metric, JSonSettings.SerializerSettings);
@@ -78,44 +114,6 @@ namespace Numerous.Api
             return await response.Content.ReadAsAsync<Metric>(JSonSettings.Formatter);
         }
         
-        public async Task<Metric> GetMetric(long metricId)
-        {
-            var metricsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}", metricId);
-            var response = await client.GetAsyncWithQuota(metricsUrl);
-            return await response.Content.ReadAsAsync<Metric>(JSonSettings.Formatter);
-        }
-        
-        public async Task<Image> GetMetricImage(long metricId)
-        {
-            var photoUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/photo", metricId);
-            var response = await client.GetAsyncWithQuota(photoUrl);
-            
-            var data = await response.Content.ReadAsByteArrayAsync();
-
-            return new Image
-            {
-                MediaType = response.Content.Headers.ContentType.MediaType,
-                Data = data
-            };
-        }
-        
-        public async Task<IEnumerable<Metric>> GetUserMetrics(long userId = 0)
-        {
-            var metricsUrl = string.Format(CultureInfo.InvariantCulture, "users/{0}/metrics", GetUserIdParameter(userId));
-            var response = await client.GetAsyncWithQuota(metricsUrl);
-            var result = await response.Content.ReadAsAsync<MetricResultPage>(JSonSettings.Formatter);
-
-            // Handle case when result.NextUrl is not null
-            return result.All ?? Enumerable.Empty<Metric>();
-        }
-
-        public async Task<IEnumerable<Metric>> GetPopularMetrics(int count = 10)
-        {
-            var metricsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/popular?count={0}", count);
-            var response = await client.GetAsyncWithQuota(metricsUrl);
-            return await response.Content.ReadAsAsync<IEnumerable<Metric>>(JSonSettings.Formatter);
-        }
-
         public async Task DeleteMetric(long metricId)
         {
             var metricUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}", metricId);
@@ -132,7 +130,29 @@ namespace Numerous.Api
 
         #region Events
 
-        public async Task<Event> AddMetricEvent(long metricId, Event.Edit evnt)
+        public async Task<Event> GetEvent(long metricId, long eventId)
+        {
+            var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events/{1}", metricId, eventId);
+
+            var response = await client.GetAsyncWithQuota(eventsUrl);
+            return await response.Content.ReadAsAsync<Event>(JSonSettings.Formatter);
+        }
+
+        public async Task<ResultPage<Event>> GetEvents(long metricId)
+        {
+            var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events", metricId);
+            return await GetResultView<EventResultPage, Event>(eventsUrl);
+        }
+
+        public async Task<Event> GetNearestEvent(long metricId, DateTime date)
+        {
+            var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events?t={1}", metricId, date.ToString(JSonSettings.SerializerSettings.DateFormatString, CultureInfo.InvariantCulture));
+
+            var response = await client.GetAsyncWithQuota(eventsUrl);
+            return await response.Content.ReadAsAsync<Event>(JSonSettings.Formatter);
+        }
+
+        public async Task<Event> AddEvent(long metricId, Event.Edit evnt)
         {
             var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events", metricId);
 
@@ -141,34 +161,7 @@ namespace Numerous.Api
             return await response.Content.ReadAsAsync<Event>(JSonSettings.Formatter);
         }
 
-        public async Task<IEnumerable<Event>> GetMetricEvents(long metricId)
-        {
-            var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events", metricId);
-
-            var response = await client.GetAsyncWithQuota(eventsUrl);
-            var result = await response.Content.ReadAsAsync<EventResultPage>(JSonSettings.Formatter);
-
-            //TODO: Add support for paging
-            return result.All;
-        }
-
-        public async Task<Event> GetMetricEvent(long metricId, long eventId)
-        {
-            var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events/{1}", metricId, eventId);
-
-            var response = await client.GetAsyncWithQuota(eventsUrl);
-            return await response.Content.ReadAsAsync<Event>(JSonSettings.Formatter);
-        }
-
-        public async Task<Event> GetMetricEventAt(long metricId, DateTime date)
-        {
-            var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events?t={1}", metricId, date.ToString(JSonSettings.SerializerSettings.DateFormatString, CultureInfo.InvariantCulture));
-
-            var response = await client.GetAsyncWithQuota(eventsUrl);
-            return await response.Content.ReadAsAsync<Event>(JSonSettings.Formatter);
-        }
-
-        public async Task DeleteMetricEvent(long metricId, long eventId)
+        public async Task DeleteEvent(long metricId, long eventId)
         {
             var eventsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/events/{1}", metricId, eventId);
             await client.DeleteAsyncWithQuota(eventsUrl);
@@ -178,39 +171,31 @@ namespace Numerous.Api
 
         #region Subscriptions
 
+        public async Task<Subscription> GetSubscription(long metricId, long userId = 0)
+        {
+            var subscriptionsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/subscriptions/{1}", metricId, GetUserIdParameter(userId));
+            var response = await client.GetAsyncWithQuota(subscriptionsUrl);
+            return await response.Content.ReadAsAsync<Subscription>(JSonSettings.Formatter);
+        }
+
+        public async Task<ResultPage<Subscription>> GetUserSubscriptions(long userId = 0)
+        {
+            var subscriptionsUrl = string.Format(CultureInfo.InvariantCulture, "users/{0}/subscriptions", GetUserIdParameter(userId));
+            return await GetResultView<SubscriptionResultPage, Subscription>(subscriptionsUrl);
+        }
+
+        public async Task<ResultPage<Subscription>> GetMetricSubscriptions(long metricId)
+        {
+            var subscriptionsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/subscriptions", metricId);
+            return await GetResultView<SubscriptionResultPage, Subscription>(subscriptionsUrl);
+        }
+
         public async Task<Subscription> AddSubscription(long metricId, long userId = 0, Subscription.Edit subscription = null)
         {
             var subscriptionUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/subscriptions/{1}", metricId, GetUserIdParameter(userId));
 
             var jsonSubscription = JsonConvert.SerializeObject(subscription, JSonSettings.SerializerSettings);
             var response = await client.PutAsyncWithQuota(subscriptionUrl, jsonSubscription);
-            return await response.Content.ReadAsAsync<Subscription>(JSonSettings.Formatter);
-        }
-
-        public async Task<IEnumerable<Subscription>> GetUserSubscriptions(long userId = 0)
-        {
-            var subscriptionsUrl = string.Format(CultureInfo.InvariantCulture, "users/{0}/subscriptions", GetUserIdParameter(userId));
-            var response = await client.GetAsyncWithQuota(subscriptionsUrl);
-            var subscriptions = await response.Content.ReadAsAsync<SubscriptionResultPage>(JSonSettings.Formatter);
-
-            //TODO: Implement paging
-            return subscriptions.All;
-        }
-
-        public async Task<IEnumerable<Subscription>> GetMetricSubscriptions(long metricId)
-        {
-            var subscriptionsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/subscriptions", metricId);
-            var response = await client.GetAsyncWithQuota(subscriptionsUrl);
-            var subscriptions = await response.Content.ReadAsAsync<SubscriptionResultPage>(JSonSettings.Formatter);
-
-            //TODO: Implement paging
-            return subscriptions.All;
-        }
-
-        public async Task<Subscription> GetSubscription(long metricId, long userId = 0)
-        {
-            var subscriptionsUrl = string.Format(CultureInfo.InvariantCulture, "metrics/{0}/subscriptions/{1}", metricId, GetUserIdParameter(userId));
-            var response = await client.GetAsyncWithQuota(subscriptionsUrl);
             return await response.Content.ReadAsAsync<Subscription>(JSonSettings.Formatter);
         }
 
@@ -290,6 +275,22 @@ namespace Numerous.Api
         private static object GetUserIdParameter(long userId)
         {
             return userId != 0 ? XmlConvert.ToString(userId) : "me";
+        }
+
+        private async Task<ResultPage<TResult>> GetResultView<TPage, TResult>(string url) where TPage : IResultPage<TResult>
+        {
+            if (string.IsNullOrEmpty(url))
+                return ResultPage<TResult>.Empty;
+
+            var response = await client.GetAsyncWithQuota(url);
+            var result = await response.Content.ReadAsAsync<TPage>(JSonSettings.Formatter);
+
+            return new ResultPage<TResult>
+            {
+                Values = result.Values,
+                HasMoreResults = !string.IsNullOrEmpty(result.NextUrl),
+                NextEvaluator = () => GetResultView<TPage, TResult>(result.NextUrl)
+            };
         }
 
         #endregion

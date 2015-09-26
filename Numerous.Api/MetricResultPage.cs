@@ -3,10 +3,10 @@ using Newtonsoft.Json;
 
 namespace Numerous.Api
 {
-    internal class MetricResultPage
+    internal class MetricResultPage : IResultPage<Metric>
     {
         [JsonProperty("metrics")]
-        public List<Metric> All { get; set; }
+        public IEnumerable<Metric> Values { get; set; }
 
         [JsonProperty("nextURL")]
         public string NextUrl { get; set; }
