@@ -75,11 +75,9 @@ This occur when HTTP status code returned by API is one of the following:
  - **502** : Bad Gateway
  - **503** : Service Unavailable
  - **504** : Gateway Timeout
+Also, non-HTTP network errors (reported as `HttpRequestException`) are also handled.
 
-API Error handling is transparent for the `NumerousClient` caller. Attempt count may be configured using the `NumerousSettings.ErrorRetry` property (default is 1), interval between successive attempts may be configured using the `NumerousSettings.ErrorRetryDelay` property (default is 30 seconds).
-
-**There is currently no limit in the number of successive attempts.**
-
+API Error handling is transparent for the `NumerousClient` caller. Attempt count may be configured using the `NumerousSettings.HttpErrorRetry` and `NumerousSettings.NetworkErrorRetry` properties (default is 1 for both), interval between successive attempts may be configured using the `NumerousSettings.ErrorRetryDelay` property (default is 30 seconds).
 
 ## Supported API
 

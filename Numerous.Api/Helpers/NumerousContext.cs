@@ -9,25 +9,37 @@ namespace Numerous.Api.Helpers
 {
     internal class NumerousContext
     {
+        #region Public Fields
+
         public HttpClient Client;
         public NumerousSettings Settings;
 
-        public bool AllowRetry(HttpResponseMessage response, int retryCount)
+        #endregion
+
+        #region Methods
+
+        public bool AllowRetry(HttpResponseMessage response, int tryMade)
         {
+            var nextTry = tryMade + 1;
+
+            if (response == null)
+                // Unhandled exception while calling API.
+                return nextTry <= Settings.NetworkErrorRetry;
+
             switch (response.StatusCode)
             {
-                case (HttpStatusCode)429:       // Quota exceeded
-                    return retryCount <= Settings.QuotaExceededRetry;
+                case (HttpStatusCode) 429: // Quota exceeded
+                    return nextTry <= Settings.QuotaExceededRetry;
 
-                // Error class 5xx is typically due to transient errors
+                    // Error class 5xx is typically due to transient errors
                 case HttpStatusCode.InternalServerError:
                 case HttpStatusCode.BadGateway:
                 case HttpStatusCode.GatewayTimeout:
                 case HttpStatusCode.ServiceUnavailable:
 
-                // Error class 4xx is due to client error, just handle request timeout
+                    // Error class 4xx is due to client error, just handle request timeout
                 case HttpStatusCode.RequestTimeout:
-                    return retryCount <= Settings.ErrorRetry;
+                    return nextTry <= Settings.HttpErrorRetry;
 
                 default:
                     return false;
@@ -36,12 +48,42 @@ namespace Numerous.Api.Helpers
 
         public void WaitRetry(HttpResponseMessage response)
         {
-            var reset = response.Headers.GetValues("X-Rate-Limit-Reset")
-                .Select(v => TimeSpan.FromSeconds(int.Parse(v, CultureInfo.InvariantCulture) + 1))
-                .DefaultIfEmpty(Settings.ErrorRetryDelay)
-                .First();
+            var delay =
+                response != null ?
+                    response.Headers.GetValues("X-Rate-Limit-Reset")
+                        .Select(v => TimeSpan.FromSeconds(int.Parse(v, CultureInfo.InvariantCulture) + 1))
+                        .DefaultIfEmpty(Settings.ErrorRetryDelay)
+                        .First()
+                    : Settings.ErrorRetryDelay;
 
-            Thread.Sleep(reset);
+            Thread.Sleep(delay);
         }
+
+        public static NumerousContext Create(NumerousSettings settings)
+        {
+            return new NumerousContext
+            {
+                Settings = settings,
+                Client = CreateClient(settings)
+            };
+        }
+
+        #endregion
+
+        #region Private Helpers
+
+        private static HttpClient CreateClient(NumerousSettings settings)
+        {
+            var credentials = new NetworkCredential(settings.ApiKey, string.Empty);
+            var handler = new HttpClientHandler {Credentials = credentials};
+
+            return new HttpClient(handler)
+            {
+                BaseAddress = settings.ApiEndPoint,
+                Timeout = settings.Timeout
+            };
+        }
+
+        #endregion
     }
 }

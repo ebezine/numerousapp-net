@@ -53,20 +53,44 @@ namespace Numerous.Api.Helpers
 
         private static async Task<HttpResponseMessage> WithRetry(this NumerousContext context, Func<Task<HttpResponseMessage>> evaluator)
         {
-            // First attempt;
             var attempt = 0;
-            var response = await evaluator();
+            var response = await context.Attempt(evaluator, attempt);
 
-            while (!response.IsSuccessStatusCode && context.AllowRetry(response, attempt))
+            while ((response == null || !response.IsSuccessStatusCode) && context.AllowRetry(response, attempt))
             {
                 context.WaitRetry(response);
 
                 attempt++;
-                response = await evaluator();
+                response = await context.Attempt(evaluator, attempt);
             }
 
             response.EnsureSuccessStatusCode();
             return response;
+        }
+
+        private static async Task<HttpResponseMessage> Attempt(this NumerousContext context, Func<Task<HttpResponseMessage>> evaluator, int attempt)
+        {
+            HttpResponseMessage response;
+            try
+            {
+                response = await evaluator();
+            }
+            catch (Exception ex)
+            {
+                // Exceptions may be thrown if network is unavailable
+                response = null;
+                if (!context.IsExceptionAllowedToRetry(ex, attempt))
+                    throw;
+            }
+            return response;
+        }
+
+        private static bool IsExceptionAllowedToRetry(this NumerousContext context, Exception ex, int attempt)
+        {
+            if (ex is HttpRequestException)
+                   return context.AllowRetry(null, attempt);
+
+            return false;
         }
 
         private static MultipartFormDataContent GetMultipartFormDataContent(Image.Edit image)

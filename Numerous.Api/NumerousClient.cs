@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -16,9 +15,7 @@ namespace Numerous.Api
     public class NumerousClient : IDisposable
     {
         #region Fields
-
-        private static readonly Uri baseUrl = new Uri("https://api.numerousapp.com/v2/");
-
+        
         private readonly NumerousContext context;
 
         #endregion
@@ -37,15 +34,7 @@ namespace Numerous.Api
         /// <param name="settings">The settings.</param>
         public NumerousClient(NumerousSettings settings)
         {
-            var credentials = new NetworkCredential(settings.ApiKey, string.Empty);
-            var handler = new HttpClientHandler { Credentials = credentials };
-
-            var client = new HttpClient(handler) { BaseAddress = baseUrl };
-            context = new NumerousContext
-            {
-                Client = client,
-                Settings = settings
-            };
+            context = NumerousContext.Create(settings);
         }
 
         /// <summary>
