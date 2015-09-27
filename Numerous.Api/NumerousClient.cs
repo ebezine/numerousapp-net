@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Xml;
 using Newtonsoft.Json;
 using Numerous.Api.Helpers;
 
@@ -438,7 +437,9 @@ namespace Numerous.Api
 
         private static object GetUserIdParameter(long userId)
         {
-            return userId != 0 ? XmlConvert.ToString(userId) : "me";
+            return userId != 0 
+                ? Convert.ToString(userId, CultureInfo.InvariantCulture) 
+                : "me";
         }
 
         private async Task<ResultPage<TResult>> GetResultView<TPage, TResult>(string url) where TPage : IResultPage<TResult>
