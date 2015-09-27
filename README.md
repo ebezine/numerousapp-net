@@ -14,7 +14,7 @@ The easiest way to use Numerous.NET is to install the [Numerous.NET nuget](https
 
 ### Coding
 Create an instance of the `NumerousClient` class, providing your Numerous API key (you can find your API key in the Numerous mobile apps under Settings > Developer Info).
-`NumerousClient` implements `IDisposable` interface. You may use the `using` construct or use the `Close` method to release resources associated with the client.
+`NumerousClient` implements `IDisposable` interface. You may use the `using` construct or use the `.Close()` method to release resources associated with the client.
 
 ```
 using Numerous.Api;
@@ -27,7 +27,6 @@ using (var client = new NumerousClient(apiKey))
 
 	[...]
 }
-
 ```
 `NumerousClient` initializer also have an override taking a `NumerousSettings` value providing more flexible use of API (see below).
 
@@ -41,7 +40,6 @@ using Numerous.Api.Sync;
 var currentUser = client.GetUser().AsSync();
 
 [...]
-
 ```
 
 ## Features
@@ -55,9 +53,20 @@ var currentUser = client.GetUser().AsSync();
 Methods that support paging returns a `ResultPage<T>` object having the following behavior :
   - Results of the current view may be accessed using `Values` property
   - If more results are available, `HasMoreResults` property is `true`
-  - Next page of results may be obtained by invoking `Next()` method
+  - Next page of results may be obtained by invoking `.Next()` method
 
 `.Take()` extensions methods are available on `ResultPage<T>`, which allow easy retrieval of all or a number of items.
+
+```
+ [...]
+ 
+ var metrics = await client.GetUserMetrics().TakeAll();
+
+ var metricId = metrics.First().Id;
+ var events = await client.GetEvents(metricId).Take(10000);
+ 
+ [...]
+```
 
 ### Quota Handling
 Numerous API calls are limited to a quota of 300 calls/minute. 
@@ -120,4 +129,3 @@ API Error handling is transparent for the `NumerousClient` caller. Attempt count
  - **GetNearestEvent** : Retrieve the nearest event to a date
  - **AddEvent** : Add a new event
  - **DeleteEvent** : Delete an event
-
