@@ -57,6 +57,8 @@ Methods that support paging returns a `ResultPage<T>` object having the followin
   - If more results are available, `HasMoreResults` property is `true`
   - Next page of results may be obtained by invoking `Next()` method
 
+`.Take()` extensions methods are available on `ResultPage<T>`, which allow easy retrieval of all or a number of items.
+
 ### Quota Handling
 Numerous API calls are limited to a quota of 300 calls/minute. 
 
