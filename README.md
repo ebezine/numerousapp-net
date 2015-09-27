@@ -5,10 +5,14 @@ Numerous follows the most important numbers in your life and keeps them up to da
 ----------
 
 Numerous.NET is an unofficial wrapper for [Numerous App](http://numerousapp.com/) [API](https://developer.numerousapp.com/).
-Numerous.NET is based on .NET 4.5 framework.
+Numerous.NET requires the .NET 4.5 framework.
 
 ## Getting Started
 
+### Installing Numerous.NET
+The easiest way to use Numerous.NET is to install the [Numerous.NET nuget](https://www.nuget.org/packages/Numerous.Api/). The nuget ID is `numerous.api`.
+
+### Coding
 Create an instance of the `NumerousClient` class, providing your Numerous API key (you can find your API key in the Numerous mobile apps under Settings > Developer Info).
 `NumerousClient` implements `IDisposable` interface. You may use the `using` construct or use the `Close` method to release resources associated with the client.
 

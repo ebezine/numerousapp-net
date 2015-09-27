@@ -8,9 +8,12 @@
     <owners>$author$</owners>
     <licenseUrl>https://github.com/ebezine/numerousapp-net/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/ebezine/numerousapp-net/</projectUrl>
-    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+    <iconUrl>http://numerousapp.com/img/favicons/favicon-96x96.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>
+      Numerous.NET is an unofficial wrapper for Numerous App (http://numerousapp.com/) API.
+      Numerous.NET requires the .NET 4.5 framework.
+    </description>
     <copyright>Copyright Eric Bézine, 2015</copyright>
     <tags>Numerous NumerousApp</tags>
   </metadata>
