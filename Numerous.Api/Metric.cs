@@ -221,6 +221,15 @@ namespace Numerous.Api
             #region Properties
 
             /// <summary>
+            /// Gets or sets the owner identifier.
+            /// </summary>
+            /// <value>
+            /// The owner identifier.
+            /// </value>
+            [JsonProperty("ownerId")]
+            public long? OwnerId { get; set; }
+
+            /// <summary>
             /// Gets or sets the metric name.
             /// </summary>
             /// <value>
@@ -298,22 +307,6 @@ namespace Numerous.Api
             public string DetailsUrl { get; set; }
 
             /// <summary>
-            /// Gets the metric channel identifier.
-            /// </summary>
-            /// <value>
-            /// The channel identifier.
-            /// </value>
-            public long ChannelId { get; set; }
-
-            /// <summary>
-            /// Gets or sets a value indicating whether this instance is owned by channel.
-            /// </summary>
-            /// <value>
-            /// <c>true</c> if this instance is owned by channel; otherwise, <c>false</c>.
-            /// </value>
-            public bool IsOwnedByChannel { get; set; }
-
-            /// <summary>
             /// Gets or sets the metric source class.
             /// </summary>
             /// <value>
@@ -353,6 +346,7 @@ namespace Numerous.Api
 
                 return new Edit
                 {
+                    OwnerId = OwnerId ?? existingMetric.OwnerId,
                     Name = Name ?? existingMetric.Name,
                     Description = Description ?? existingMetric.Description,
                     PhotoId = PhotoId ?? existingMetric.PhotoId,

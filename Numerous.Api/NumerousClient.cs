@@ -185,6 +185,37 @@ namespace Numerous.Api
 
         #endregion
 
+        #region Channel Metrics
+
+        public async Task<Metric> AddChannelMetric(long channelId, string sourceClass, string sourceKey, Metric.Edit metric)
+        {
+            metric.SourceClass = sourceClass;
+            metric.SourceKey = sourceKey;
+
+            var jsonMetric = JsonConvert.SerializeObject(metric, JSonSettings.SerializerSettings);
+            var metricsUrl = string.Format(CultureInfo.InvariantCulture, "channels/{0}/metrics/{1}/{2}", channelId, sourceClass, sourceKey);
+
+            var response = await context.PostWithRetry(metricsUrl, jsonMetric);
+            return await response.Content.ReadAsAsync<Metric>(JSonSettings.Formatter);
+        }
+
+        public async Task<Metric> GetChannelMetric(long channelId, string sourceClass, string sourceKey)
+        {
+            var metricsUrl = string.Format(CultureInfo.InvariantCulture, "channels/{0}/metrics/{1}/{2}", channelId, sourceClass, sourceKey);
+            var response = await context.GetWithRetry(metricsUrl);
+            return await response.Content.ReadAsAsync<Metric>(JSonSettings.Formatter);
+        }
+
+        public async Task<ResultPage<Metric>> GetChannelMetrics(long channelId, string sourceClass = null)
+        {
+            var metricsUrl = string.IsNullOrEmpty(sourceClass)
+                ? string.Format(CultureInfo.InvariantCulture, "channels/{0}/metrics", channelId)
+                : string.Format(CultureInfo.InvariantCulture, "channels/{0}/metrics/{1}", channelId, sourceClass);
+            return await GetResultView<MetricResultPage, Metric>(metricsUrl);
+        }
+
+        #endregion
+
         #region Events
 
         /// <summary>

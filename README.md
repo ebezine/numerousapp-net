@@ -116,6 +116,12 @@ API Error handling is transparent for the `NumerousClient` caller. Attempt count
  - **UpdateMetricImage** : Update metric image
  - **DeleteMetricImage** : Clear metric image
 
+#### Channel Metric
+ - **GetChannelMetrics** : Retrieve the metrics associated with a channel and, optionnaly, a source class
+ - **GetChannelMetric** : Retrieve the metric associated with a channel, a source class and a source key
+ - **AddChannelMetric** : Create a new metric associated with the channel. If metric is already existing, existing metric is returned
+ Channe metrics may be deleted using the `DeleteMetric` method.
+
 ### Subscriptions
  - **GetSubscription** : Retrieve information about a subscription
  - **GetUserSubscriptions** : Retrieve subscriptions made by a user
