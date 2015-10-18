@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Numerous.Api
 {
     /// <summary>
@@ -11,6 +13,7 @@ namespace Numerous.Api
         /// <value>
         /// The API url of the metric.
         /// </value>
+        [JsonProperty("self")]
         public string Self { get; internal set; }
 
         /// <summary>
@@ -19,6 +22,7 @@ namespace Numerous.Api
         /// <value>
         /// The url of the web page of the metric.
         /// </value>
+        [JsonProperty("web")]
         public string Web { get; internal set; }
 
         /// <summary>
@@ -27,6 +31,7 @@ namespace Numerous.Api
         /// <value>
         /// The url of the embeddable web page of the metric.
         /// </value>
-        public string Embed { get; internal set; }
+        [JsonProperty("embed")]
+        public string Embeddable { get; internal set; }
     }
 }
