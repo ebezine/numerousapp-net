@@ -170,6 +170,15 @@ namespace Numerous.Api
         public DateTime UpdateDate { get; internal set; }
 
         /// <summary>
+        /// Gets the metric last event date.
+        /// </summary>
+        /// <value>
+        /// The last event date.
+        /// </value>
+        [JsonProperty("latestEventUpdated")]
+        public DateTime LastEventDate { get; internal set; }
+
+        /// <summary>
         /// Gets the metric photo identifier, if photo is from Numerous presets.
         /// </summary>
         /// <value>
@@ -244,6 +253,7 @@ namespace Numerous.Api
             /// <value>
             /// The description.
             /// </value>
+            [JsonProperty("description")]
             public string Description { get; set; }
 
             /// <summary>
@@ -252,6 +262,7 @@ namespace Numerous.Api
             /// <value>
             /// The kind.
             /// </value>
+            [JsonProperty("kind")]
             public MetricKind? Kind { get; set; }
 
             /// <summary>
@@ -260,6 +271,7 @@ namespace Numerous.Api
             /// <value>
             /// The currency symbol.
             /// </value>
+            [JsonProperty("currencySymbol")]
             public string CurrencySymbol { get; set; }
 
             /// <summary>
@@ -269,6 +281,7 @@ namespace Numerous.Api
             /// The precision.
             /// </value>
             /// <remarks>Precision correspond to the number of decimals. Use <c>-1</c> for maximum precision.</remarks>
+            [JsonProperty("precision")]
             public int? Precision { get; set; }
 
             /// <summary>
@@ -278,6 +291,7 @@ namespace Numerous.Api
             /// The plural form of unit.
             /// </value>
             /// <remarks>Unit should not be set on temperature</remarks>
+            [JsonProperty("units")]
             public string Units { get; set; }
 
             /// <summary>
@@ -287,6 +301,7 @@ namespace Numerous.Api
             /// The singular form of unit.
             /// </value>
             /// <remarks>Unit should not be set on temperature</remarks>
+            [JsonProperty("unit")]
             public string Unit { get; set; }
 
             /// <summary>
@@ -295,6 +310,7 @@ namespace Numerous.Api
             /// <value>
             /// The visibility.
             /// </value>
+            [JsonProperty("visibility")]
             public Visibility? Visibility { get; set; }
 
             /// <summary>
@@ -312,6 +328,7 @@ namespace Numerous.Api
             /// <value>
             /// The source class.
             /// </value>
+            [JsonProperty("sourceClass")]
             public string SourceClass { get; set; }
 
             /// <summary>
@@ -320,6 +337,7 @@ namespace Numerous.Api
             /// <value>
             /// The source key.
             /// </value>
+            [JsonProperty("sourceKey")]
             public string SourceKey { get; set; }
 
             /// <summary>
@@ -328,6 +346,7 @@ namespace Numerous.Api
             /// <value>
             /// The photo identifier.
             /// </value>
+            [JsonProperty("photoId")]
             public string PhotoId { get; set; }
 
             //TODO: implement PhotoTreatment
